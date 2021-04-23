@@ -1,0 +1,38 @@
+body {
+    margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+#main {
+    display: flex;
+    flex-wrap: wrap;
+    width: 288px;
+    margin-left: 200px;
+    margin-top: 50px;
+}
+
+.item {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    border: 1px solid black;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.item:hover {
+    background: lightgray;
+}
+
+.item.active {
+    background: grey;
+}
+
+.item.hidden {
+    background: black;
+}
