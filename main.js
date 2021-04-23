@@ -2,6 +2,7 @@
   const container = document.getElementById('main');
   const refreshButton = document.getElementById('refresh');
   const restartButton = document.getElementById('restart');
+  const backButton = document.getElementById('back');
   const defaultList = [
     1, 2, 3, 4, 5, 6, 7, 8, 9,
     1, 1, 1, 2, 1, 3, 1, 4, 1,
@@ -36,6 +37,10 @@
     restartButton.addEventListener('click', () => {
       restart();
     });
+
+    backButton.addEventListener('click', () => {
+      back();
+    });
   }
 
   function select(index) {
@@ -69,10 +74,16 @@
       return true;
     }
 
-    if (index % 9 !== selected % 9) return false;
+    if (index % 9 !== selected % 9) {
+      unselect();
+      return false;
+    }
 
     for (let i = start + 9; i < end; i += 9) {
-      if (list[i] !== -1) return false;
+      if (list[i] !== -1) {
+        unselect();
+        return false;
+      }
     }
 
     clear(index);
@@ -82,6 +93,7 @@
   function clear(index) {
     list[index] = -1;
     list[selected] = -1;
+    updateHistory();
     update(index);
     update(selected);
     unselect();
@@ -99,8 +111,9 @@
   function add(num) {
     const index = list.length;
     list.push(num);
-    const element = document.createElement('div', );
+    const element = document.createElement('div');
     element.classList.add('item');
+    if (num === - 1) element.classList.add('hidden');
     element.innerText = num;
     element.setAttribute('index', index.toString());
     hash[index] = element;
@@ -108,8 +121,13 @@
   }
 
   function init() {
-    for (let i = 0; i < defaultList.length; i++) {
-      add(defaultList[i]);
+    let dataSource = defaultList;
+    const stored = window.localStorage.getItem('cross-digits');
+    if (stored) {
+      dataSource = JSON.parse(stored);
+    }
+    for (let i = 0; i < dataSource.length; i++) {
+      add(dataSource[i]);
     }
   }
 
@@ -121,15 +139,37 @@
         add(list[i]);
       }
     }
+
+    updateHistory();
   }
 
   function restart() {
     window.localStorage.setItem('cross-digits', '');
-    window.location.reload();
+    cleanItems();
+    init();
   }
 
   function updateHistory() {
+    console.log(history);
     history.push([...list]);
     window.localStorage.setItem('cross-digits', JSON.stringify(history[history.length - 1]));
+  }
+
+  function cleanItems() {
+    for (let index in hash) {
+      hash[index].remove();
+    }
+  }
+
+  function back() {
+    if (history.length < 2) return false;
+
+    history.pop();
+    const previousState = history.pop();
+    console.log(previousState);
+
+    window.localStorage.setItem('cross-digits', JSON.stringify(previousState));
+    cleanItems();
+    init();
   }
 })();
